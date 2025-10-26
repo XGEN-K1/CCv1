@@ -130,7 +130,7 @@ function UtilitySystem.CreateButtons()
     if UtilitySystem.config.BoomboxParent then
         UtilitySystem.Buttons.Boombox = Instance.new("TextButton")
         UtilitySystem.Buttons.Boombox.Size = UDim2.new(0, 80, 0, 30)
-        UtilitySystem.Buttons.Boombox.Position = UDim2.new(0, 5, 0, 80)
+        UtilitySystem.Buttons.Boombox.Position = UDim2.new(0, 5, 0, 90)
         UtilitySystem.Buttons.Boombox.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         UtilitySystem.Buttons.Boombox.BackgroundTransparency = 0.7
         UtilitySystem.Buttons.Boombox.Text = "BoomBox"
