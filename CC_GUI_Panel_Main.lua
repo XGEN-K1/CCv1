@@ -27,7 +27,8 @@ local MODULE_URLS = {
     PlayerSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/PlayerSystem.lua",
     UtilitySystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/UtilitySystem.lua",
     AmmoShopSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AmmoShopSystem.lua",
-    AimSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AimSystem.lua"
+    AimSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AimSystem.lua",
+    SpeedSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/SpeedSystem.lua"
 }
 -- 🎯 QUICK AIM LOAD
 local success, result = pcall(function()
@@ -181,6 +182,12 @@ local function InitializeSystems(gui)
         })
     else
         warn("❌ RenegadeGunSystem не завантажено")
+    end
+    
+    if Modules.SpeedSystem then
+        Modules.SpeedSystem.Init(gui.Panels.Middle) -- або будь-яка інша панель
+    else
+        warn("❌ SpeedSystem не завантажено")
     end
     
     -- Ініціалізація Stomp системи
