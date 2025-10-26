@@ -18,22 +18,21 @@ local CoreGui = game:GetService("CoreGui")
 
 -- Конфігурація URL для модулів
 local MODULE_URLS = {
-    ModuleLoader = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/ModuleLoader.lua",
-    NotificationSystem = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/NotificationSystem.lua",
-    RenegadeGunSystem = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/RenegadeGunSystem.lua",
-    StompSystem = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/StompSystem.lua",
-    TeleportSystem = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/TeleportSystem.lua",
-    CombatSystem = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/CombatSystem.lua",
-    PlayerSystem = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/PlayerSystem.lua",
-    UtilitySystem = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/UtilitySystem.lua",
-    AmmoShopSystem = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/AmmoShopSystem.lua",
-    UIElements = "https://raw.githubusercontent.com/yourusername/yourrepo/main/Modules/UIElements.lua"
+    ModuleLoader = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/ModuleLoader.lua",
+    NotificationSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/NotificationSystem.lua",
+    RenegadeGunSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/RenegadeGunSystem.lua",
+    StompSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/StompSystem.lua",
+    CombatSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/CombatSystem.lua",
+    TeleportSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/TeleportSystem.lua",
+    PlayerSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/PlayerSystem.lua",
+    UtilitySystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/UtilitySystem.lua",
+    AmmoShopSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AmmoShopSystem.lua"
 }
 
 -- Глобальні змінні
 local Modules = {}
 local activeConnections = {}
-local activeLoops = {}
+local screenGui = nil
 
 -- Функція завантаження модулів
 local function LoadModules()
@@ -49,14 +48,14 @@ local function LoadModules()
         print("✅ Всі модулі завантажено!")
         return true
     else
-        warn("❌ Помилка завантаження ModuleLoader")
+        warn("❌ Помилка завантаження ModuleLoader: " .. tostring(ModuleLoader))
         return false
     end
 end
 
 -- Функція створення основного GUI
 local function CreateMainGUI()
-    local screenGui = Instance.new("ScreenGui")
+    screenGui = Instance.new("ScreenGui")
     screenGui.Name = "GAS"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = CoreGui
@@ -164,6 +163,8 @@ local function InitializeSystems(gui)
             CursorAimKey = Enum.KeyCode.M,
             SelfShootKey = Enum.KeyCode.K
         })
+    else
+        warn("❌ RenegadeGunSystem не завантажено")
     end
     
     -- Ініціалізація Stomp системи
@@ -172,6 +173,8 @@ local function InitializeSystems(gui)
             ToggleKey = Enum.KeyCode.Y,
             StompEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Stomp")
         })
+    else
+        warn("❌ StompSystem не завантажено")
     end
     
     -- Ініціалізація Combat системи
@@ -179,6 +182,8 @@ local function InitializeSystems(gui)
         Modules.CombatSystem.Init(gui.Panels.Middle, {
             ActivateKey = Enum.KeyCode.P
         })
+    else
+        warn("❌ CombatSystem не завантажено")
     end
     
     -- Ініціалізація Utility системи
@@ -192,24 +197,33 @@ local function InitializeSystems(gui)
             AimSettingsParent = gui.Panels.RightMiddle,
             BoomboxParent = gui.Panels.RightMiddle
         })
+    else
+        warn("❌ UtilitySystem не завантажено")
     end
     
     -- Ініціалізація Player системи
     if Modules.PlayerSystem then
         Modules.PlayerSystem.Init(gui.Panels.Left)
+    else
+        warn("❌ PlayerSystem не завантажено")
     end
     
     -- Ініціалізація Teleport системи
     if Modules.TeleportSystem then
         Modules.TeleportSystem.Init({
             SafesButtonParent = gui.Panels.Middle,
-            NPCButtonParent = gui.Panels.Left
+            NPCButtonParent = gui.Panels.Left,
+            LumberButtonParent = gui.Panels.Middle
         })
+    else
+        warn("❌ TeleportSystem не завантажено")
     end
     
     -- Ініціалізація AmmoShop системи
     if Modules.AmmoShopSystem then
         Modules.AmmoShopSystem.Init(gui.Panels.Right, gui.FilterButton)
+    else
+        warn("❌ AmmoShopSystem не завантажено")
     end
     
     print("✅ Всі системи ініціалізовано!")
@@ -218,10 +232,10 @@ end
 -- Функція обробки закриття
 local function SetupCloseHandler(gui, closeButton)
     closeButton.MouseButton1Click:Connect(function()
-        -- Зупиняємо всі активні цикли
-        for _, loop in pairs(activeLoops) do
-            if type(loop) == "thread" then
-                coroutine.close(loop)
+        -- Викликаємо деструктори модулів
+        for name, module in pairs(Modules) do
+            if module and module.Destroy then
+                pcall(module.Destroy)
             end
         end
         
@@ -235,17 +249,12 @@ local function SetupCloseHandler(gui, closeButton)
         -- Видаляємо GUI
         gui.ScreenGui:Destroy()
         
-        -- Викликаємо деструктори модулів
-        for name, module in pairs(Modules) do
-            if module and module.Destroy then
-                pcall(module.Destroy)
-            end
-        end
-        
         -- Повідомлення про вимкнення
         if Modules.NotificationSystem then
             Modules.NotificationSystem.ShowNotification("All functions stopped and GUI removed")
         end
+        
+        print("✅ GUI вимкнено")
     end)
 end
 
@@ -285,6 +294,7 @@ local function Main()
     if Modules.NotificationSystem then
         Modules.NotificationSystem.ShowNotification("Натисніть [Y] для перемикання Stomp")
         Modules.NotificationSystem.ShowNotification("Натисніть [L] для перемикання GUI")
+        Modules.NotificationSystem.ShowNotification("Натисніть [K] для Self Shoot | [M] для Cursor Aim")
     end
     
     print("✅ CC GUI Panel успішно запущено!")
@@ -297,7 +307,6 @@ Main()
 return {
     Modules = Modules,
     ActiveConnections = activeConnections,
-    ActiveLoops = activeLoops,
     Player = player,
     Players = Players
 }
