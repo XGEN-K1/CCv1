@@ -29,6 +29,21 @@ local MODULE_URLS = {
     AmmoShopSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AmmoShopSystem.lua",
     AimSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AimSystem.lua"
 }
+-- 🎯 QUICK AIM LOAD
+local success, result = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AimSystem.lua"))()
+end)
+
+if success and result then
+    print("✅ AIM System loaded!")
+    result.Init(nil, {AimKey = "t", DeselectKey = "j", ShootKey = "v", TriggerKey = "h", SwitchTargetKey = "b"})
+    if getgenv().AIM then
+        AIM.Enable()
+        print("🎯 Press T to target | B to switch | J to clear")
+    end
+else
+    warn("❌ FAILED: " .. tostring(result))
+end
 
 -- Глобальні змінні
 local Modules = {}
@@ -168,17 +183,6 @@ local function InitializeSystems(gui)
         warn("❌ RenegadeGunSystem не завантажено")
     end
     
-    if Modules.AimSystem then
-        Modules.AimSystem.Init(gui.Panels.RightMiddle, {
-            AimKey = "t",
-            DeselectKey = "j", 
-            ShootKey = "v",
-            TriggerKey = "h",
-            SwitchTargetKey = "b"
-        })
-    else
-        warn("❌ AimSystem не завантажено")
-    end
     -- Ініціалізація Stomp системи
     if Modules.StompSystem then
         Modules.StompSystem.Init(gui.Panels.Middle, {
