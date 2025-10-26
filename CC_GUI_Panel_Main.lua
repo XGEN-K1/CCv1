@@ -26,7 +26,8 @@ local MODULE_URLS = {
     TeleportSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/TeleportSystem.lua",
     PlayerSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/PlayerSystem.lua",
     UtilitySystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/UtilitySystem.lua",
-    AmmoShopSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AmmoShopSystem.lua"
+    AmmoShopSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AmmoShopSystem.lua",
+    AimSystem = "https://raw.githubusercontent.com/XGEN-K1/CCv1/refs/heads/main/AimSystem.lua"
 }
 
 -- Глобальні змінні
@@ -167,6 +168,17 @@ local function InitializeSystems(gui)
         warn("❌ RenegadeGunSystem не завантажено")
     end
     
+    if Modules.AimSystem then
+        Modules.AimSystem.Init(gui.Panels.RightMiddle, {
+            AimKey = "t",
+            DeselectKey = "j", 
+            ShootKey = "v",
+            TriggerKey = "h",
+            SwitchTargetKey = "b"
+        })
+    else
+        warn("❌ AimSystem не завантажено")
+    end
     -- Ініціалізація Stomp системи
     if Modules.StompSystem then
         Modules.StompSystem.Init(gui.Panels.Middle, {
